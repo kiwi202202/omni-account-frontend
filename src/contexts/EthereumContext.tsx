@@ -6,8 +6,10 @@ interface EthereumContextType {
   provider: ethers.BrowserProvider | null;
   signer: ethers.JsonRpcSigner | null;
   chainId: string | null;
+  aaContractAddress: string | null;
   connect: () => Promise<void>;
   switchNetwork: (chainId: string) => Promise<void>;
+  fetchAAContractAddress: () => Promise<void>;
   error: string;
 }
 
@@ -58,6 +60,9 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
   const [error, setError] = useState<string>("");
   const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
   const [chainId, setChainId] = useState<string | null>(null);
+  const [aaContractAddress, setAAContractAddress] = useState<string | null>(
+    null
+  );
 
   const connect = async () => {
     if (!window.ethereum) {
@@ -134,6 +139,25 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
     }
   };
 
+  const fetchAAContractAddress = async () => {
+    if (!account || !provider) {
+      setError("Account or provider is not available.");
+      return;
+    }
+
+    try {
+      // const response = await fetch(
+      //   `https://api.backend.com/getAAAddress?eoa=${account}`
+      // );
+      // const data = await response.json();
+      // setAAContractAddress(data.aaContractAddress);
+      setAAContractAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+    } catch (error) {
+      console.error("Failed to fetch AA Contract Address:", error);
+      setError("Failed to fetch AA Contract Address.");
+    }
+  };
+
   return (
     <EthereumContext.Provider
       value={{
@@ -141,8 +165,10 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
         provider,
         signer,
         chainId,
+        aaContractAddress,
         connect,
         switchNetwork,
+        fetchAAContractAddress,
         error,
       }}
     >

@@ -67,10 +67,10 @@ const Banner = () => {
             Ticket Interaction
           </Button>
           <Button
-            onClick={() => navigate("/aa-contract-interaction")}
+            onClick={() => navigate("/account-page")}
             sx={{
               ...baseStyle,
-              ...(isActive("/aa-contract-interaction") ? activeStyle : {}),
+              ...(isActive("/account-page") ? activeStyle : {}),
             }}
           >
             AA Contract Interaction
