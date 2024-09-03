@@ -9,6 +9,7 @@ import {
   Td,
   Thead,
   Th,
+  HStack,
 } from "@chakra-ui/react";
 import { AccountDetails } from "../types/Account";
 
@@ -64,16 +65,20 @@ const Account: React.FC<{ address: string }> = ({ address }) => {
   return (
     <Box>
       <Stack spacing={4}>
+        <HStack>
+          <Text variant="title">Omni Account: </Text>
+          <Text variant="description">{address}</Text>
+        </HStack>
+        <HStack>
+          <Text variant="title">Balance: </Text>
+          <Text variant="description">{accountDetails.balance} ETH</Text>
+        </HStack>
+        <HStack>
+          <Text variant="title">Nonce:</Text>
+          <Text variant="description">{accountDetails.nonce}</Text>
+        </HStack>
         <Box>
-          <Text fontWeight="bold">Balance:</Text>
-          <Text>{accountDetails.balance} ETH</Text>
-        </Box>
-        <Box>
-          <Text fontWeight="bold">Nonce:</Text>
-          <Text>{accountDetails.nonce}</Text>
-        </Box>
-        <Box>
-          <Text fontWeight="bold">Transaction History:</Text>
+          <Text variant="title">Transaction History</Text>
           <Table>
             <Thead>
               <Tr>

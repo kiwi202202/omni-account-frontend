@@ -8,9 +8,9 @@ import {
   Input,
   VStack,
   Text,
-  Heading,
   useToast,
   Select,
+  Flex,
 } from "@chakra-ui/react";
 
 const TicketManagerABI = TicketManagerJson.abi;
@@ -91,63 +91,84 @@ const TicketInteractionPage = () => {
   };
 
   return (
-    <Box p={6} minH="100vh">
-      <Heading as="h1" size="xl" mb={6} textAlign="center">
-        Ticket Interaction
-      </Heading>
-      <VStack spacing={4} align="stretch">
-        <Select
-          placeholder="Select Network"
-          value={selectedNetwork}
-          onChange={(e) => setSelectedNetwork(e.target.value)}
-          size="lg"
-        >
-          <option value="11155111">Sepolia (11155111)</option>
-          <option value="1101">Polygon zkEVM (1101)</option>
-          <option value="42161">Arbitrum (42161)</option>
-          <option value="31337">Hardhat Local Testnet (31337)</option>
-        </Select>
+    <Flex direction="column" align="center" p="5">
+      <Box
+        width="1280px"
+        border="1.5px solid black"
+        display="flex"
+        flexDirection="column"
+        alignItems="left"
+        justifyContent="center"
+        marginBottom="20px"
+        marginTop="20px"
+        borderRadius="0"
+        bg="white"
+        padding={8}
+        boxShadow="sm"
+        textAlign="left"
+      >
+        <Text variant="title" mb={6} textAlign="start">
+          Ticket Interaction
+        </Text>
+        <VStack spacing={4} align="stretch">
+          <Select
+            placeholder="Select Network"
+            value={selectedNetwork}
+            onChange={(e) => setSelectedNetwork(e.target.value)}
+            size="lg"
+          >
+            <option value="11155111">Sepolia (11155111)</option>
+            <option value="1101">Polygon zkEVM (1101)</option>
+            <option value="42161">Arbitrum (42161)</option>
+            <option value="31337">Hardhat Local Testnet (31337)</option>
+          </Select>
 
-        <Button
-          onClick={handleNetworkSwitch}
-          variant="solid"
-          size="lg"
-          width="200px"
-        >
-          Switch Network
-        </Button>
+          <Button
+            onClick={handleNetworkSwitch}
+            variant="solid"
+            size="lg"
+            width="200px"
+          >
+            Switch Network
+          </Button>
 
-        <Input
-          placeholder="Address"
-          value={account}
-          onChange={(e) => setAccount(e.target.value)}
-          size="lg"
-          focusBorderColor="brand.500"
-        />
-        <Input
-          placeholder="Amount in ETH"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          size="lg"
-          focusBorderColor="brand.500"
-        />
-        <Button onClick={handleDeposit} variant="solid" size="lg" width="200px">
-          Deposit Ticket
-        </Button>
-        <Button
-          onClick={handleWithdraw}
-          variant="solid"
-          size="lg"
-          width="200px"
-        >
-          Withdraw Ticket
-        </Button>
+          <Input
+            placeholder="Address"
+            value={account}
+            onChange={(e) => setAccount(e.target.value)}
+            size="lg"
+            focusBorderColor="brand.500"
+          />
+          <Input
+            placeholder="Amount in ETH"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            size="lg"
+            focusBorderColor="brand.500"
+          />
+          <Button
+            onClick={handleDeposit}
+            variant="solid"
+            size="lg"
+            width="200px"
+          >
+            Deposit Ticket
+          </Button>
+          <Button
+            onClick={handleWithdraw}
+            variant="solid"
+            size="lg"
+            width="200px"
+          >
+            Withdraw Ticket
+          </Button>
 
-        {chainId && (
-          <Text textAlign="center">Connected to Chain ID: {chainId}</Text>
-        )}
-      </VStack>
-    </Box>
+          {chainId && (
+            <Text textAlign="center">Connected to Chain ID: {chainId}</Text>
+          )}
+        </VStack>
+      </Box>
+    </Flex>
   );
 };
 

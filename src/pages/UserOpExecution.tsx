@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   Box,
   Button,
+  ButtonGroup,
+  Flex,
   FormControl,
   FormLabel,
   Input,
@@ -30,6 +32,34 @@ const UserOpExecution = () => {
     paymasterAndData: "0x",
   });
   const toast = useToast();
+
+  const omniAccountSample: UserOperation = {
+    sender: account || "0x",
+    nonce: 2,
+    chainId: 1,
+    initCode: "0xYourOmniAccountInitCode",
+    callData: "0xYourOmniAccountCallData",
+    callGasLimit: 30000,
+    verificationGasLimit: 25000,
+    preVerificationGas: 15000,
+    maxFeePerGas: 25000000000,
+    maxPriorityFeePerGas: 2000000000,
+    paymasterAndData: "0xYourPaymasterData",
+  };
+
+  const transferSample: UserOperation = {
+    sender: account || "0x",
+    nonce: 3,
+    chainId: 1,
+    initCode: "0xYourTransferInitCode",
+    callData: "0xYourTransferCallData",
+    callGasLimit: 35000,
+    verificationGasLimit: 27000,
+    preVerificationGas: 17000,
+    maxFeePerGas: 30000000000,
+    maxPriorityFeePerGas: 2500000000,
+    paymasterAndData: "0xYourPaymasterData",
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -131,105 +161,131 @@ const UserOpExecution = () => {
   };
 
   return (
-    <Box maxW="500px" mx="auto" mt="5">
-      <Text fontSize="2xl" mb="4">
-        UserOp Execution
-      </Text>
-      <FormControl mb="3">
-        <FormLabel>Sender</FormLabel>
-        <Input name="sender" value={userOp.sender} onChange={handleChange} />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>Nonce</FormLabel>
-        <Input
-          name="nonce"
-          type="number"
-          value={userOp.nonce}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>Chain ID</FormLabel>
-        <Input
-          name="chainId"
-          type="number"
-          value={userOp.chainId}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>initCode</FormLabel>
-        <Input
-          name="initCode"
-          value={userOp.initCode}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>callData</FormLabel>
-        <Input
-          name="callData"
-          value={userOp.callData}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>callGasLimit</FormLabel>
-        <Input
-          name="callGasLimit"
-          type="number"
-          value={userOp.callGasLimit}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>verificationGasLimit</FormLabel>
-        <Input
-          name="verificationGasLimit"
-          type="number"
-          value={userOp.verificationGasLimit}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>preVerificationGas</FormLabel>
-        <Input
-          name="preVerificationGas"
-          type="number"
-          value={userOp.preVerificationGas}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>maxFeePerGas</FormLabel>
-        <Input
-          name="maxFeePerGas"
-          type="number"
-          value={userOp.maxFeePerGas}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>maxPriorityFeePerGas</FormLabel>
-        <Input
-          name="maxPriorityFeePerGas"
-          type="number"
-          value={userOp.maxPriorityFeePerGas}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl mb="3">
-        <FormLabel>paymasterAndData</FormLabel>
-        <Input
-          name="paymasterAndData"
-          value={userOp.paymasterAndData}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <Button colorScheme="teal" onClick={signAndSend}>
-        Sign and Send UserOp
-      </Button>
-    </Box>
+    <Flex direction="column" align="center" p="5">
+      <Flex
+        p={8}
+        width="1280px"
+        border="1.5px solid black"
+        borderRadius="0"
+        mx="auto"
+        marginTop="20px"
+        marginBottom="20px"
+        alignItems="flex-start"
+        bg="white"
+      >
+        <Box width="700px">
+          <Text variant="title" mb="4">
+            UserOp Execution
+          </Text>
+          <FormControl mb="1">
+            <FormLabel>Sender</FormLabel>
+            <Input
+              name="sender"
+              value={userOp.sender}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>Nonce</FormLabel>
+            <Input
+              name="nonce"
+              type="number"
+              value={userOp.nonce}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>Chain ID</FormLabel>
+            <Input
+              name="chainId"
+              type="number"
+              value={userOp.chainId}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>initCode</FormLabel>
+            <Input
+              name="initCode"
+              value={userOp.initCode}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>callData</FormLabel>
+            <Input
+              name="callData"
+              value={userOp.callData}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>callGasLimit</FormLabel>
+            <Input
+              name="callGasLimit"
+              type="number"
+              value={userOp.callGasLimit}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>verificationGasLimit</FormLabel>
+            <Input
+              name="verificationGasLimit"
+              type="number"
+              value={userOp.verificationGasLimit}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>preVerificationGas</FormLabel>
+            <Input
+              name="preVerificationGas"
+              type="number"
+              value={userOp.preVerificationGas}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>maxFeePerGas</FormLabel>
+            <Input
+              name="maxFeePerGas"
+              type="number"
+              value={userOp.maxFeePerGas}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>maxPriorityFeePerGas</FormLabel>
+            <Input
+              name="maxPriorityFeePerGas"
+              type="number"
+              value={userOp.maxPriorityFeePerGas}
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl mb="1">
+            <FormLabel>paymasterAndData</FormLabel>
+            <Input
+              name="paymasterAndData"
+              value={userOp.paymasterAndData}
+              onChange={handleChange}
+            />
+          </FormControl>
+        </Box>
+        <Box ml="40" width="300px" mt="20">
+          <ButtonGroup flexDir="column" spacing="0">
+            <Button mb="4" onClick={() => setUserOp(omniAccountSample)}>
+              Create AA Sample
+            </Button>
+            <Button mb="4" onClick={() => setUserOp(transferSample)}>
+              Transfer Sample
+            </Button>
+            <Button onClick={signAndSend}>Sign and Send UserOp</Button>
+          </ButtonGroup>
+        </Box>
+      </Flex>
+    </Flex>
   );
 };
 

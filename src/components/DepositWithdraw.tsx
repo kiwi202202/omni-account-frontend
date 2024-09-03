@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Input, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, HStack, Input, Stack, Text } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { useEthereum } from "../contexts/EthereumContext";
 
@@ -73,17 +73,30 @@ const DepositWithdraw: React.FC<DepositWithdrawProps> = ({
   };
 
   return (
-    <Box p={4} borderWidth="1px" borderRadius="lg" boxShadow="md" mt={4}>
+    <Box
+      mx="auto"
+      width="1280px"
+      marginTop="20px"
+      borderRadius="0"
+      borderWidth="1.5px"
+      borderColor="black"
+      bg="white"
+      padding={6}
+    >
       <Stack spacing={4}>
+        <HStack>
+          <Text variant="title">Omni Account: </Text>
+          <Text variant="description">{aaContractAddress}</Text>
+        </HStack>
         <Input
           placeholder="Please enter amount (ETH)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-        <Button onClick={handleDeposit} colorScheme="green">
+        <Button width="200px" onClick={handleDeposit} colorScheme="green">
           Deposit
         </Button>
-        <Button onClick={handleWithdraw} colorScheme="red">
+        <Button width="200px" onClick={handleWithdraw} colorScheme="red">
           Withdraw
         </Button>
         {status && <Text mt={2}>{status}</Text>}

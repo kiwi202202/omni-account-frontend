@@ -41,13 +41,22 @@ const Banner = () => {
         m="0 auto"
       >
         <Flex align="center" gap="64px">
-          <Image
+          {/* <Image
             src="/logo512.png"
             alt="Logo"
             width="200px"
             height="40px"
             borderRadius="0px"
-          />
+          /> */}
+          <Button
+            onClick={() => navigate("/")}
+            sx={{
+              ...baseStyle,
+              ...(isActive("/") ? activeStyle : {}),
+            }}
+          >
+            Omni Accout Workflow
+          </Button>
           <Button
             onClick={() => navigate("/userop-execution")}
             sx={{
@@ -74,15 +83,6 @@ const Banner = () => {
             }}
           >
             AA Contract Interaction
-          </Button>
-          <Button
-            onClick={() => navigate("/create-aa-account")}
-            sx={{
-              ...baseStyle,
-              ...(isActive("/create-aa-account") ? activeStyle : {}),
-            }}
-          >
-            Create AA Account
           </Button>
         </Flex>
 
