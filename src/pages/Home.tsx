@@ -1,4 +1,4 @@
-import { Box, Text, Image, VStack, Flex } from "@chakra-ui/react";
+import { Box, Text, Flex } from "@chakra-ui/react";
 import Workflow from "../components/Workflow";
 
 const Home: React.FC = () => {
