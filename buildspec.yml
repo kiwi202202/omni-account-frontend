@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing source NPM dependencies...
+      - npm install
+      - echo Installing jq...
+      - sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jq
+  pre_build:
+    commands:
+      - echo Retrieving secrets...
+      - |
+        aws secretsmanager get-secret-value --secret-id zk-light-client-ui --region ap-southeast-1 | 
+        jq -r ".SecretString" | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" > .env
+  build:
+    commands:
+      - echo Build started on `date`
+      - npm run build
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Syncing build directory to S3...
+      - aws s3 sync build/ s3://zk-light-client-ui --delete
+
+cache:
+  paths:
+    - "node_modules/**/*"
