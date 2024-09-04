@@ -160,6 +160,24 @@ const UserOpExecution = () => {
     }
   };
 
+  const testApi = async () => {
+    try {
+      const response = await axios.post(
+        process.env.REACT_APP_BACKEND_RPC_URL!,
+        {
+          jsonrpc: "2.0",
+          method: "eth_getBatchProof",
+          params: [],
+          id: 1,
+        }
+      );
+
+      console.log("API Response:", response.data);
+    } catch (error) {
+      console.error("API Request Failed:", error);
+    }
+  };
+
   return (
     <Flex direction="column" align="center" p="5">
       <Flex
@@ -282,6 +300,7 @@ const UserOpExecution = () => {
               Transfer Sample
             </Button>
             <Button onClick={signAndSend}>Sign and Send UserOp</Button>
+            <Button onClick={testApi}>Test Backend Api</Button>
           </ButtonGroup>
         </Box>
       </Flex>
