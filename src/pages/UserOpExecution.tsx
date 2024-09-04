@@ -14,10 +14,11 @@ import { ethers } from "ethers";
 import { useEthereum } from "../contexts/EthereumContext";
 import { UserOperation } from "../types/UserOperation";
 import axios from "axios";
+import AccountABI from "../abis/test.json";
 const { TypedDataEncoder } = ethers;
 
 const UserOpExecution = () => {
-  const { account, provider, signer } = useEthereum();
+  const { account, aaContractAddress, provider, signer } = useEthereum();
   const [userOp, setUserOp] = useState<UserOperation>({
     sender: account || "0x",
     nonce: 1,
@@ -33,11 +34,16 @@ const UserOpExecution = () => {
   });
   const toast = useToast();
 
+  const account_contract = new ethers.Contract(
+    "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    AccountABI,
+    provider
+  );
   const omniAccountSample: UserOperation = {
     sender: account || "0x",
     nonce: 2,
     chainId: 1,
-    initCode: "0xYourOmniAccountInitCode",
+    initCode: "0x",
     callData: "0xYourOmniAccountCallData",
     callGasLimit: 30000,
     verificationGasLimit: 25000,
@@ -47,18 +53,32 @@ const UserOpExecution = () => {
     paymasterAndData: "0xYourPaymasterData",
   };
 
-  const transferSample: UserOperation = {
-    sender: account || "0x",
-    nonce: 3,
-    chainId: 1,
-    initCode: "0xYourTransferInitCode",
-    callData: "0xYourTransferCallData",
-    callGasLimit: 35000,
-    verificationGasLimit: 27000,
-    preVerificationGas: 17000,
-    maxFeePerGas: 30000000000,
-    maxPriorityFeePerGas: 2500000000,
-    paymasterAndData: "0xYourPaymasterData",
+  const transferSample = () => {
+    const ethValue = ethers.parseEther("0.01"); // 10^16 wei
+    const entryPointAddress = "0x71f57F8A220FbcF6AaCdf501912C2ad9b90CA842";
+    const incrementCallData = "0x";
+
+    const callData = account_contract.interface.encodeFunctionData("execute", [
+      entryPointAddress,
+      ethValue,
+      incrementCallData,
+    ]);
+
+    const sample: UserOperation = {
+      sender: aaContractAddress || "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      nonce: 1,
+      chainId: 11155111,
+      initCode: "0x",
+      callData: callData,
+      callGasLimit: 35000,
+      verificationGasLimit: 27000,
+      preVerificationGas: 17000,
+      maxFeePerGas: 30000000000,
+      maxPriorityFeePerGas: 2500000000,
+      paymasterAndData: "0x",
+    };
+    setUserOp(sample);
+    // return sample;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,11 +155,32 @@ const UserOpExecution = () => {
       const hash = TypedDataEncoder.hash(domain, types, value);
       console.log("Hash Message: ", hash);
 
-      await axios.post(rpcUrl, signedUserOp, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const formattedUserOp = {
+        ...signedUserOp,
+        nonce: `0x${signedUserOp.nonce.toString(16)}`,
+        chainId: `0x${signedUserOp.chainId.toString(16)}`,
+        callGasLimit: `0x${signedUserOp.callGasLimit.toString(16)}`,
+        verificationGasLimit: `0x${signedUserOp.verificationGasLimit.toString(
+          16
+        )}`,
+        preVerificationGas: `0x${signedUserOp.preVerificationGas.toString(16)}`,
+        maxFeePerGas: `0x${signedUserOp.maxFeePerGas.toString(16)}`,
+        maxPriorityFeePerGas: `0x${signedUserOp.maxPriorityFeePerGas.toString(
+          16
+        )}`,
+      };
+
+      await axios.post(rpcUrl, {
+        jsonrpc: "2.0",
+        method: "eth_sendUserOperation",
+        params: [formattedUserOp],
+        id: 1,
       });
+      // await axios.post(rpcUrl, signedUserOp, {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
 
       toast({
         title: "Success",
@@ -296,8 +337,8 @@ const UserOpExecution = () => {
             <Button mb="4" onClick={() => setUserOp(omniAccountSample)}>
               Create AA Sample
             </Button>
-            <Button mb="4" onClick={() => setUserOp(transferSample)}>
-              Transfer Sample
+            <Button mb="4" onClick={transferSample}>
+              Transfer 0.1ETH Sample
             </Button>
             <Button onClick={signAndSend}>Sign and Send UserOp</Button>
             <Button onClick={testApi}>Test Backend Api</Button>
