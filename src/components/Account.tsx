@@ -12,9 +12,11 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { AccountDetails } from "../types/Account";
+import { useEthereum } from "../contexts/EthereumContext";
 
 const fetchAccountDetails = async (
-  address: string
+  address: string,
+  chainId: string
 ): Promise<AccountDetails> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -49,14 +51,17 @@ const fetchAccountDetails = async (
   return mockData;
 };
 
-const Account: React.FC<{ address: string }> = ({ address }) => {
+const Account: React.FC = () => {
   const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
     null
   );
+  const { chainId, aaContractAddress, error } = useEthereum();
 
   useEffect(() => {
-    fetchAccountDetails(address).then(setAccountDetails);
-  }, [address]);
+    fetchAccountDetails(aaContractAddress || "0x", chainId || "0x").then(
+      setAccountDetails
+    );
+  }, [aaContractAddress, chainId]);
 
   if (!accountDetails) {
     return <Text>Loading...</Text>;
@@ -67,10 +72,14 @@ const Account: React.FC<{ address: string }> = ({ address }) => {
       <Stack spacing={4}>
         <HStack>
           <Text variant="title">Omni Account: </Text>
-          <Text variant="description">{address}</Text>
+          <Text variant="description">{aaContractAddress}</Text>
         </HStack>
         <HStack>
-          <Text variant="title">Balance: </Text>
+          <Text variant="title">Chain Id: </Text>
+          <Text variant="description">{chainId}</Text>
+        </HStack>
+        <HStack>
+          <Text variant="title">Gas Balance: </Text>
           <Text variant="description">{accountDetails.balance} ETH</Text>
         </HStack>
         <HStack>

@@ -1,30 +1,51 @@
 import React, { useState } from "react";
-import { Box, Button, HStack, Input, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  HStack,
+  Input,
+  Stack,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { useEthereum } from "../contexts/EthereumContext";
+import AbstractAccountJSON from "../abis/TicketManager.json";
 
-interface DepositWithdrawProps {
-  aaContractAddress: string;
-  abstractAccountABI: any[];
-}
+const abstractAccountABI = AbstractAccountJSON.abi;
 
-const DepositWithdraw: React.FC<DepositWithdrawProps> = ({
-  aaContractAddress,
-  abstractAccountABI,
-}) => {
+const DepositWithdraw: React.FC = () => {
   const [amount, setAmount] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
+  const toast = useToast();
 
-  const { provider, signer } = useEthereum();
+  const { aaContractAddress, chainId, provider, signer } = useEthereum();
+
+  if (!aaContractAddress) {
+    return (
+      <Text mx={20} variant="title">
+        Loading AA Contract Address...
+      </Text>
+    );
+  }
 
   const handleDeposit = async () => {
     if (!amount) {
-      setStatus("Please input AA deposit amount");
+      toast({
+        title: "Please input AA deposit amount",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
       return;
     }
 
     if (!signer) {
-      setStatus("Wallet not connected");
+      toast({
+        title: "Wallet not connected",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
       return;
     }
 
@@ -33,24 +54,43 @@ const DepositWithdraw: React.FC<DepositWithdrawProps> = ({
         to: aaContractAddress,
         value: ethers.parseEther(amount),
       });
-      setStatus("Handling transaction...");
       await tx.wait();
-      setStatus("Deposit successful");
+      toast({
+        title: "Deposit successful",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
       console.log("Deposit successful");
     } catch (error: any) {
       console.error("Deposit failed:", error);
-      setStatus(`Deposit failed: ${error.message}`);
+      toast({
+        title: `Deposit failed: ${error.message}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
   const handleWithdraw = async () => {
     if (!amount) {
-      setStatus("Please input AA withdraw amount");
+      toast({
+        title: "Please input AA withdraw amount",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
       return;
     }
 
     if (!signer || !provider) {
-      setStatus("Wallet not connected");
+      toast({
+        title: "Wallet not connected",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
       return;
     }
 
@@ -62,13 +102,22 @@ const DepositWithdraw: React.FC<DepositWithdrawProps> = ({
       );
 
       const tx = await contract.withdraw(ethers.parseEther(amount));
-      setStatus("Withdrawing...");
       await tx.wait();
-      setStatus("Withdrawal successful");
+      toast({
+        title: "Withdrawal successful",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
       console.log("Withdrawal successful");
     } catch (error: any) {
       console.error("Withdrawal failed:", error);
-      setStatus(`Withdrawal failed: ${error.message}`);
+      toast({
+        title: `Withdrawal failed: ${error.message}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -88,18 +137,21 @@ const DepositWithdraw: React.FC<DepositWithdrawProps> = ({
           <Text variant="title">Omni Account: </Text>
           <Text variant="description">{aaContractAddress}</Text>
         </HStack>
+        <HStack>
+          <Text variant="title">Chain Id: </Text>
+          <Text variant="description">{chainId}</Text>
+        </HStack>
         <Input
           placeholder="Please enter amount (ETH)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-        <Button width="200px" onClick={handleDeposit} colorScheme="green">
+        <Button width="200px" onClick={handleDeposit}>
           Deposit
         </Button>
-        <Button width="200px" onClick={handleWithdraw} colorScheme="red">
+        <Button width="200px" onClick={handleWithdraw}>
           Withdraw
         </Button>
-        {status && <Text mt={2}>{status}</Text>}
       </Stack>
     </Box>
   );

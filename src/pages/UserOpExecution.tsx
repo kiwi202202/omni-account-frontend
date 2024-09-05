@@ -338,7 +338,7 @@ const UserOpExecution = () => {
               Create AA Sample
             </Button>
             <Button mb="4" onClick={transferSample}>
-              Transfer 0.1ETH Sample
+              Transfer 0.01 ETH Sample
             </Button>
             <Button onClick={signAndSend}>Sign and Send UserOp</Button>
             <Button onClick={testApi}>Test Backend Api</Button>

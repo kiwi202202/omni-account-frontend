@@ -98,14 +98,12 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
 
   const switchNetwork = async (newChainId: string) => {
     if (!provider) {
-      setError("No provider found. Please connect to MetaMask first.");
-      return;
+      throw new Error("No provider found. Please connect to MetaMask first.");
     }
 
     try {
       const network = await provider.getNetwork();
       if (network.chainId.toString() === newChainId) {
-        setError("");
         return;
       }
 
@@ -130,11 +128,13 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
       console.error("Error object:", error);
       const errorCode = (error as any)?.error?.code;
       if (errorCode === 4902) {
-        setError(
+        throw new Error(
           "This network is not available in your MetaMask, please add it."
         );
       } else {
-        setError(`Failed to switch network. Error: ${(error as any).message}`);
+        throw new Error(
+          `Failed to switch network. Error: ${(error as any).message}`
+        );
       }
     }
   };
@@ -146,16 +146,34 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
     }
 
     try {
-      // const response = await fetch(
-      //   `https://api.backend.com/getAAAddress?eoa=${account}`
-      // );
-      // const data = await response.json();
-      // setAAContractAddress(data.aaContractAddress);
       setAAContractAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
     } catch (error) {
       console.error("Failed to fetch AA Contract Address:", error);
       setError("Failed to fetch AA Contract Address.");
     }
+
+    // try {
+    //   const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+    //   const abi = [
+    //     "function getAAContractAddress(address account) view returns (address)",
+    //   ];
+
+    //   const provider = new ethers.JsonRpcProvider(
+    //     process.env.REACT_APP_SEPOLIA_RPC_URL
+    //   );
+    //   const contract = new ethers.Contract(contractAddress, abi, provider);
+
+    //   const aaContractAddress = await contract.getAAContractAddress(account);
+
+    //   if (aaContractAddress === ethers.ZeroAddress) {
+    //     setError("No AA Contract Address found for the given account.");
+    //   } else {
+    //     setAAContractAddress(aaContractAddress);
+    //   }
+    // } catch (error) {
+    //   console.error("Failed to fetch AA Contract Address:", error);
+    //   setError("Failed to fetch AA Contract Address.");
+    // }
   };
 
   return (

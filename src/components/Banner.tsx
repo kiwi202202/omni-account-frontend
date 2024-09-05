@@ -82,7 +82,7 @@ const Banner = () => {
               ...(isActive("/account-page") ? activeStyle : {}),
             }}
           >
-            AA Contract Interaction
+            Omni Account Details
           </Button>
         </Flex>
 

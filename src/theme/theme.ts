@@ -1,4 +1,5 @@
 import { extendTheme, ThemeConfig } from "@chakra-ui/react";
+import { tableTheme } from "./table";
 
 const config: ThemeConfig = {
   initialColorMode: "light",
@@ -49,6 +50,7 @@ const theme = extendTheme({
     "9xl": "8rem",
   },
   components: {
+    Table: tableTheme,
     Button: {
       baseStyle: {
         textTransform: "uppercase",

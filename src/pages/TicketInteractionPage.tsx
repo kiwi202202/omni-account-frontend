@@ -41,6 +41,26 @@ const TicketInteractionPage = () => {
   };
 
   const handleTransaction = async (type: "deposit" | "withdraw") => {
+    // switchNetwork will handle internal error
+    try {
+      await switchNetwork("11155111");
+      toast({
+        title: "Switched to Sepolia Testnet",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Fail to switch to Sepolia Testnet",
+        description: err.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       const contract = getTicketManagerContract();
       const amountInWei = ethers.parseEther(amount);
@@ -108,10 +128,10 @@ const TicketInteractionPage = () => {
         textAlign="left"
       >
         <Text variant="title" mb={6} textAlign="start">
-          Ticket Interaction
+          Gas Ticket Interaction
         </Text>
         <VStack spacing={4} align="stretch">
-          <Select
+          {/* <Select
             placeholder="Select Network"
             value={selectedNetwork}
             onChange={(e) => setSelectedNetwork(e.target.value)}
@@ -121,30 +141,28 @@ const TicketInteractionPage = () => {
             <option value="1101">Polygon zkEVM (1101)</option>
             <option value="42161">Arbitrum (42161)</option>
             <option value="31337">Hardhat Local Testnet (31337)</option>
-          </Select>
+          </Select> */}
 
-          <Button
+          {/* <Button
             onClick={handleNetworkSwitch}
             variant="solid"
             size="lg"
             width="200px"
           >
             Switch Network
-          </Button>
+          </Button> */}
 
           <Input
-            placeholder="Address"
+            placeholder="Enter the Omni Address"
             value={account}
             onChange={(e) => setAccount(e.target.value)}
             size="lg"
-            focusBorderColor="brand.500"
           />
           <Input
-            placeholder="Amount in ETH"
+            placeholder="Specify the amount in Ether (ETH)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             size="lg"
-            focusBorderColor="brand.500"
           />
           <Button
             onClick={handleDeposit}
@@ -152,7 +170,7 @@ const TicketInteractionPage = () => {
             size="lg"
             width="200px"
           >
-            Deposit Ticket
+            Add Gas Deposit
           </Button>
           <Button
             onClick={handleWithdraw}
@@ -160,11 +178,13 @@ const TicketInteractionPage = () => {
             size="lg"
             width="200px"
           >
-            Withdraw Ticket
+            Request Withdrawal
           </Button>
 
           {chainId && (
-            <Text textAlign="center">Connected to Chain ID: {chainId}</Text>
+            <Text textAlign="center" variant="description">
+              Connected to Chain ID: {chainId}
+            </Text>
           )}
         </VStack>
       </Box>

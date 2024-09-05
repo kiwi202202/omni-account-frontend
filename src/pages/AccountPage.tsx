@@ -4,25 +4,31 @@ import Account from "../components/Account";
 import DepositWithdraw from "../components/DepositWithdraw";
 import { useEthereum } from "../contexts/EthereumContext";
 
-import AbstractAccountJSON from "../abis/TicketManager.json";
-
-const AbstractAccountABI = AbstractAccountJSON.abi;
 const AccountPage: React.FC = () => {
-  const { fetchAAContractAddress, aaContractAddress, error } = useEthereum();
+  const { fetchAAContractAddress, account, aaContractAddress, chainId, error } =
+    useEthereum();
 
   useEffect(() => {
     const init = async () => {
       await fetchAAContractAddress();
     };
     init();
-  }, [fetchAAContractAddress]);
+  }, [fetchAAContractAddress, account]);
 
   if (error) {
-    return <Text>{error}</Text>;
+    return (
+      <Text mx={20} variant="title">
+        {error}
+      </Text>
+    );
   }
 
   if (!aaContractAddress) {
-    return <Text>Loading AA Contract Address...</Text>;
+    return (
+      <Text mx={20} variant="title">
+        Loading AA Contract Address...
+      </Text>
+    );
   }
 
   return (
@@ -42,12 +48,9 @@ const AccountPage: React.FC = () => {
         boxShadow="sm"
         textAlign="left"
       >
-        <Account address={aaContractAddress} />
+        <Account />
       </Box>
-      <DepositWithdraw
-        aaContractAddress={aaContractAddress}
-        abstractAccountABI={AbstractAccountABI}
-      />
+      <DepositWithdraw />
     </Flex>
   );
 };
