@@ -24,19 +24,35 @@ const Home: React.FC = () => {
             Omni Account Model
           </Text>
           <Text variant="description" mb={4}>
-            Omni Account is an innovative account model leveraging EIP-4337 and
-            zero-knowledge proof (ZKP) technology. It utilizes an off-chain
-            Sparse Merkle Tree (SMT) to manage users' gas balances, with gas
-            fees for contract execution deducted directly from the SMT. The
-            correctness of SMT state transitions is ensured by EIP-712 formatted
-            signatures and ZKPs. This model enables seamless multi-chain
-            expansion through cross-chain protocols, transforming it into a
-            truly Omni Account. By shifting signature verification from on-chain
-            to an off-chain ZKP circuit and maintaining user states within the
-            Omni SMT, the model reduces gas costs by eliminating the base
-            transaction fee and the on-chain ecrecover cost. Although ZKPs
-            introduce an additional 200-300k gas overhead, this can be
-            effectively amortized across multiple transactions.
+            Omni Account is an innovative account model leveraging{" "}
+            <Text as="span" fontWeight="bold">
+              EIP-4337
+            </Text>{" "}
+            and{" "}
+            <Text as="span" fontWeight="bold">
+              zero-knowledge proof (ZKP)
+            </Text>{" "}
+            technology. It utilizes an{" "}
+            <Text as="span" fontWeight="bold">
+              off-chain Sparse Merkle Tree (SMT)
+            </Text>{" "}
+            to manage users' gas balances, with gas fees for contract execution
+            deducted directly from the SMT. The correctness of SMT state
+            transitions is ensured by EIP-712 formatted signatures and ZKPs .
+            This model enables seamless multi-chain expansion through{" "}
+            <Text as="span" fontWeight="bold">
+              cross-chain protocols
+            </Text>{" "}
+            , transforming it into a truly{" "}
+            <Text as="span" fontWeight="bold">
+              Omni Account
+            </Text>
+            . By shifting signature verification from on-chain to an off-chain
+            ZKP circuit and maintaining user states within the Omni SMT , the
+            model reduces gas costs by eliminating the base transaction fee and
+            the on-chain ecrecover cost. Although ZKPs introduce an additional
+            200-300k gas overhead , this can be effectively amortized across
+            multiple transactions.
           </Text>
         </Box>
       </Box>

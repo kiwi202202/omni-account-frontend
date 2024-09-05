@@ -64,7 +64,7 @@ const Banner = () => {
               ...(isActive("/userop-execution") ? activeStyle : {}),
             }}
           >
-            UserOp Execution
+            UserOp Submission
           </Button>
           <Button
             onClick={() => navigate("/ticket-interaction")}

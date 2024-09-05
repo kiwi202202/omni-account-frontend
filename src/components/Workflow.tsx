@@ -21,9 +21,9 @@ const Workflow: React.FC = () => {
         </Text>
         {/* <Center width="100%" p="2" bg="white"> */}
         <Image
-          src={`${process.env.PUBLIC_URL}/zkaa-workflow.png`}
+          src={`${process.env.PUBLIC_URL}/zkaa-workflow2.png`}
           alt="Workflow Diagram"
-          maxWidth="70%"
+          maxWidth="100%"
           height="auto"
           objectFit="contain"
         />

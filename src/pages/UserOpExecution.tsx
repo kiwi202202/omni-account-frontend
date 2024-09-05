@@ -234,7 +234,7 @@ const UserOpExecution = () => {
       >
         <Box width="700px">
           <Text variant="title" mb="4">
-            UserOp Execution
+            User Operation Submission
           </Text>
           <FormControl mb="1">
             <FormLabel>Sender</FormLabel>
