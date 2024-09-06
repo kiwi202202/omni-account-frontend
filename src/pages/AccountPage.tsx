@@ -5,15 +5,7 @@ import DepositWithdraw from "../components/DepositWithdraw";
 import { useEthereum } from "../contexts/EthereumContext";
 
 const AccountPage: React.FC = () => {
-  const { fetchAAContractAddress, account, aaContractAddress, chainId, error } =
-    useEthereum();
-
-  useEffect(() => {
-    const init = async () => {
-      await fetchAAContractAddress();
-    };
-    init();
-  }, [account]);
+  const { account, aaContractAddress, chainId, error } = useEthereum();
 
   if (error) {
     return (
