@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useEthereum } from "../contexts/EthereumContext";
 import { ethers } from "ethers";
-import TicketManagerJson from "../abis/TicketManager.json";
+// import TicketManagerABI from "../abis/EntryPoint.json";
 import {
   Box,
   Button,
@@ -11,36 +11,32 @@ import {
   useToast,
   Select,
   Flex,
+  HStack,
 } from "@chakra-ui/react";
 
-const TicketManagerABI = TicketManagerJson.abi;
+// const TicketManagerABI = TicketManagerJson.abi;
+import SimpleAccount from "../abis/SimpleAccount.json";
+
+const abstractAccountABI = SimpleAccount;
 
 const TicketInteractionPage = () => {
-  const { chainId, switchNetwork, signer } = useEthereum();
+  const { chainId, switchNetwork, signer, aaContractAddress } = useEthereum();
   const [amount, setAmount] = useState<string>("");
   const [account, setAccount] = useState<string>("");
   // selectedNetwork is only used for network switch, chainId is used for contract interaction.
   const [selectedNetwork, setSelectedNetwork] = useState<string>("11155111");
   const toast = useToast();
 
-  const getTicketManagerContract = () => {
-    if (!signer || !chainId) {
-      throw new Error(
-        "No signer or chainId found. Please connect to MetaMask."
-      );
-    }
-
-    const contractAddress = process.env[`REACT_APP_TICKET_MANAGER_${chainId}`];
-    if (!contractAddress) {
-      throw new Error(
-        "No TicketManager contract address found for the current chain."
-      );
-    }
-    console.log("contractAddress: ", contractAddress);
-    return new ethers.Contract(contractAddress, TicketManagerABI, signer);
-  };
-
   const handleTransaction = async (type: "deposit" | "withdraw") => {
+    if (!aaContractAddress) {
+      toast({
+        title: "No Omni Account binding to current EOA address",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
     // switchNetwork will handle internal error
     try {
       await switchNetwork("11155111");
@@ -62,21 +58,21 @@ const TicketInteractionPage = () => {
     }
 
     try {
-      const contract = getTicketManagerContract();
+      // const contract = getTicketManagerContract();
       const amountInWei = ethers.parseEther(amount);
 
-      console.log("AA address: ", account);
-      if (!ethers.isAddress(account)) {
-        throw new Error("Invalid Ethereum address");
-      }
-      const normalizedAccount = ethers.getAddress(account);
+      const contract = new ethers.Contract(
+        aaContractAddress,
+        abstractAccountABI,
+        signer
+      );
 
       const tx =
         type === "deposit"
-          ? await contract.addDepositTicket(normalizedAccount, amountInWei, {
+          ? await contract.addDeposit({
               value: amountInWei,
             })
-          : await contract.addWithdrawTicket(normalizedAccount, amountInWei);
+          : await contract.withdrawDepositTo(amountInWei);
 
       await tx.wait();
       toast({
@@ -131,6 +127,10 @@ const TicketInteractionPage = () => {
           Gas Ticket Interaction
         </Text>
         <VStack spacing={4} align="stretch">
+          <HStack>
+            <Text variant="title">Omni Account: </Text>
+            <Text variant="description">{aaContractAddress}</Text>
+          </HStack>
           {/* <Select
             placeholder="Select Network"
             value={selectedNetwork}
@@ -152,12 +152,12 @@ const TicketInteractionPage = () => {
             Switch Network
           </Button> */}
 
-          <Input
+          {/* <Input
             placeholder="Enter the Omni Address"
             value={account}
             onChange={(e) => setAccount(e.target.value)}
             size="lg"
-          />
+          /> */}
           <Input
             placeholder="Specify the amount in Ether (ETH)"
             value={amount}

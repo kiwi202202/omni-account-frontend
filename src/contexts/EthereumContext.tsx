@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { ethers } from "ethers";
+import axios from "axios";
 
 interface EthereumContextType {
   account: string | null;
@@ -141,39 +142,26 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
 
   const fetchAAContractAddress = async () => {
     if (!account || !provider) {
-      setError("Account or provider is not available.");
+      setError("Cannot fetch Omni Account: EOA or provider is not available.");
       return;
     }
 
     try {
-      setAAContractAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+      const response = await axios.post(
+        process.env.REACT_APP_BACKEND_RPC_URL!,
+        {
+          jsonrpc: "2.0",
+          method: "eth_getUserAccount",
+          params: [account],
+          id: 1,
+        }
+      );
+
+      setAAContractAddress(response.data.result[0]);
     } catch (error) {
-      console.error("Failed to fetch AA Contract Address:", error);
+      console.error("API Request Failed:", error);
       setError("Failed to fetch AA Contract Address.");
     }
-
-    // try {
-    //   const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
-    //   const abi = [
-    //     "function getAAContractAddress(address account) view returns (address)",
-    //   ];
-
-    //   const provider = new ethers.JsonRpcProvider(
-    //     process.env.REACT_APP_SEPOLIA_RPC_URL
-    //   );
-    //   const contract = new ethers.Contract(contractAddress, abi, provider);
-
-    //   const aaContractAddress = await contract.getAAContractAddress(account);
-
-    //   if (aaContractAddress === ethers.ZeroAddress) {
-    //     setError("No AA Contract Address found for the given account.");
-    //   } else {
-    //     setAAContractAddress(aaContractAddress);
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to fetch AA Contract Address:", error);
-    //   setError("Failed to fetch AA Contract Address.");
-    // }
   };
 
   return (

@@ -10,11 +10,12 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import { useEthereum } from "../contexts/EthereumContext";
 import { UserOperation } from "../types/UserOperation";
 import axios from "axios";
 import AccountABI from "../abis/test.json";
+import SimpleAccountFactoryABI from "../abis/SimpleAccountFactory.json";
 const { TypedDataEncoder } = ethers;
 
 const UserOpExecution = () => {
@@ -22,7 +23,7 @@ const UserOpExecution = () => {
   const [userOp, setUserOp] = useState<UserOperation>({
     sender: account || "0x",
     nonce: 1,
-    chainId: 1,
+    chainId: 11155111,
     initCode: "0x",
     callData: "0x",
     callGasLimit: 21000,
@@ -39,19 +40,102 @@ const UserOpExecution = () => {
     AccountABI,
     provider
   );
-  const omniAccountSample: UserOperation = {
-    sender: account || "0x",
-    nonce: 2,
-    chainId: 1,
-    initCode: "0x",
-    callData: "0xYourOmniAccountCallData",
-    callGasLimit: 30000,
-    verificationGasLimit: 25000,
-    preVerificationGas: 15000,
-    maxFeePerGas: 25000000000,
-    maxPriorityFeePerGas: 2000000000,
-    paymasterAndData: "0xYourPaymasterData",
+
+  const createAccountSample = async () => {
+    // const ethValue = ethers.parseEther("0.01"); // 10^16 wei
+    // const entryPointAddress = "0x71f57F8A220FbcF6AaCdf501912C2ad9b90CA842";
+    // const incrementCallData = "0x";
+    if (!account) {
+      toast({
+        title: "Error",
+        description: `Wallet Not Connected.`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    const owner = account;
+    const salt = 0;
+
+    const accountFactoryAddress =
+      process.env[`REACT_APP_ACCOUNT_FACTORY_${userOp.chainId}`];
+    if (!accountFactoryAddress) {
+      toast({
+        title: "Error",
+        description: `Account factory is not available for chainId ${userOp.chainId}.`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    console.log("Factory Address: ", accountFactoryAddress);
+
+    const account_factory = new ethers.Contract(
+      accountFactoryAddress,
+      SimpleAccountFactoryABI,
+      signer
+    );
+
+    const preInitCode = account_factory.interface.encodeFunctionData(
+      "createAccount",
+      [owner, salt]
+    );
+
+    // const addressHex = ethers.hexlify(accountFactoryAddress);
+    const initCode = accountFactoryAddress + preInitCode.slice(2);
+
+    // account_factory.createAccount()
+    let initAccount: string = await account_factory.getAccountAddress(
+      owner,
+      salt
+    );
+
+    const sample: UserOperation = {
+      sender: initAccount,
+      nonce: 1,
+      chainId: 11155111,
+      initCode: initCode,
+      callData: "0x",
+      callGasLimit: 35000,
+      verificationGasLimit: 250000,
+      preVerificationGas: 17000,
+      maxFeePerGas: 30000000000,
+      maxPriorityFeePerGas: 2500000000,
+      paymasterAndData: "0x",
+    };
+    setUserOp(sample);
+
+    // directly create Omni Account by contract interaction
+    await createAccountAndGetAddress(account_factory, owner, salt);
   };
+
+  async function createAccountAndGetAddress(
+    account_factory: ethers.Contract,
+    owner: string,
+    salt: BigNumberish
+  ) {
+    // Assume account_factory is an instance of a contract with the createAccount method
+    try {
+      let tx = await account_factory.createAccount(owner, salt);
+
+      // Wait for the transaction to be mined
+      let receipt = await tx.wait();
+      // Extract the address from the transaction receipt
+      // The address should be in receipt.events[0].args[0] or similar based on contract's output
+      // let initAccount = receipt.events[0].args[0];
+    } catch {
+      toast({
+        title: "Error",
+        description: `Failed to create Omni Account.`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+  }
 
   const transferSample = () => {
     const ethValue = ethers.parseEther("0.01"); // 10^16 wei
@@ -100,17 +184,17 @@ const UserOpExecution = () => {
 
     try {
       const domain = {
-        name: "ZK-AA",
+        name: "OMNI-ACCOUNT",
         version: "1.0",
-        chainId: userOp.chainId,
-        verifyingContract: userOp.sender,
+        chainId: 11155111,
+        verifyingContract: process.env.REACT_APP_SEPOLIA_ENTRY_POINT!,
       };
 
       const types = {
         UserOperation: [
           { name: "sender", type: "address" },
           { name: "nonce", type: "uint256" },
-          { name: "chainId", type: "uint256" },
+          { name: "chainId", type: "uint64" },
           { name: "initCode", type: "bytes" },
           { name: "callData", type: "bytes" },
           { name: "callGasLimit", type: "uint256" },
@@ -170,17 +254,15 @@ const UserOpExecution = () => {
         )}`,
       };
 
+      console.log("formattedUserOp:");
+      console.log(formattedUserOp);
+
       await axios.post(rpcUrl, {
         jsonrpc: "2.0",
         method: "eth_sendUserOperation",
         params: [formattedUserOp],
         id: 1,
       });
-      // await axios.post(rpcUrl, signedUserOp, {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
 
       toast({
         title: "Success",
@@ -334,7 +416,7 @@ const UserOpExecution = () => {
         </Box>
         <Box ml="40" width="300px" mt="20">
           <ButtonGroup flexDir="column" spacing="0">
-            <Button mb="4" onClick={() => setUserOp(omniAccountSample)}>
+            <Button mb="4" onClick={createAccountSample}>
               Create AA Sample
             </Button>
             <Button mb="4" onClick={transferSample}>

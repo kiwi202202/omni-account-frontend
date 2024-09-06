@@ -10,9 +10,9 @@ import {
 } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { useEthereum } from "../contexts/EthereumContext";
-import AbstractAccountJSON from "../abis/TicketManager.json";
+import SimpleAccount from "../abis/SimpleAccount.json";
 
-const abstractAccountABI = AbstractAccountJSON.abi;
+const abstractAccountABI = SimpleAccount;
 
 const DepositWithdraw: React.FC = () => {
   const [amount, setAmount] = useState<string>("");
@@ -23,7 +23,7 @@ const DepositWithdraw: React.FC = () => {
   if (!aaContractAddress) {
     return (
       <Text mx={20} variant="title">
-        Loading AA Contract Address...
+        No Omni Account is linked to the current EOA
       </Text>
     );
   }
@@ -76,7 +76,7 @@ const DepositWithdraw: React.FC = () => {
   const handleWithdraw = async () => {
     if (!amount) {
       toast({
-        title: "Please input AA withdraw amount",
+        title: "Please input the amount to withdraw from your Omni Account",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -101,7 +101,14 @@ const DepositWithdraw: React.FC = () => {
         signer
       );
 
-      const tx = await contract.withdraw(ethers.parseEther(amount));
+      console.log("aaContractAddress try to Withdraw: ", aaContractAddress);
+      console.log(
+        "signer.address try to withdraw: ",
+        await signer.getAddress()
+      );
+
+      console.log("ethers.parseEther(amount): ", ethers.parseEther(amount));
+      const tx = await contract.withdrawFromContract(ethers.parseEther(amount));
       await tx.wait();
       toast({
         title: "Withdrawal successful",

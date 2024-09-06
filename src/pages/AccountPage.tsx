@@ -13,7 +13,7 @@ const AccountPage: React.FC = () => {
       await fetchAAContractAddress();
     };
     init();
-  }, [fetchAAContractAddress, account]);
+  }, [account]);
 
   if (error) {
     return (
@@ -26,7 +26,7 @@ const AccountPage: React.FC = () => {
   if (!aaContractAddress) {
     return (
       <Text mx={20} variant="title">
-        Loading AA Contract Address...
+        No Omni Account is linked to the current EOA
       </Text>
     );
   }

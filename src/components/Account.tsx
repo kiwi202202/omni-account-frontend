@@ -10,45 +10,47 @@ import {
   Thead,
   Th,
   HStack,
+  useToast,
 } from "@chakra-ui/react";
 import { AccountDetails } from "../types/Account";
 import { useEthereum } from "../contexts/EthereumContext";
+import axios from "axios";
 
 const fetchAccountDetails = async (
   address: string,
   chainId: string
 ): Promise<AccountDetails> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  const mockData: AccountDetails = {
-    balance: "1.2345",
-    nonce: 42,
-    history: [
-      {
-        hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-        to: "0x1234567890abcdef1234567890abcdef12345678",
-        from: "0xabcdef1234567890abcdef1234567890abcdef1234",
-        value: "0.5",
-        timestamp: "2024-08-31 10:00:00",
-      },
-      {
-        hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-        to: "0xabcdef1234567890abcdef1234567890abcdef1234",
-        from: "0x1234567890abcdef1234567890abcdef12345678",
-        value: "0.75",
-        timestamp: "2024-08-30 14:30:00",
-      },
-      {
-        hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-        to: "0x1234567890abcdef1234567890abcdef12345678",
-        from: "0xabcdef1234567890abcdef1234567890abcdef1234",
-        value: "1.0",
-        timestamp: "2024-08-29 09:15:00",
-      },
-    ],
+  const rpcData = {
+    jsonrpc: "2.0",
+    method: "eth_getAccountInfo",
+    params: [address, parseInt(chainId, 10)],
+    // params: ["0xfd63ed0566a782ef57f559c6f5f9afece4866423", 11155111],
+    id: 1,
   };
 
-  return mockData;
+  try {
+    const response = await axios.post(
+      process.env.REACT_APP_BACKEND_RPC_URL!,
+      rpcData
+    );
+
+    if (response.data && response.data.result) {
+      const result = response.data.result;
+
+      const accountDetails: AccountDetails = {
+        balance: result.Balance,
+        nonce: result.Nonce,
+        history: [],
+      };
+
+      return accountDetails;
+    } else {
+      throw new Error("Failed to get Omni Account Info");
+    }
+  } catch (error) {
+    console.error("Failed to send getAccountInfo request to backend:", error);
+    throw new Error("Failed to get Omni Account Info");
+  }
 };
 
 const Account: React.FC = () => {
@@ -57,10 +59,22 @@ const Account: React.FC = () => {
   );
   const { chainId, aaContractAddress, error } = useEthereum();
 
+  const toast = useToast();
+
   useEffect(() => {
-    fetchAccountDetails(aaContractAddress || "0x", chainId || "0x").then(
-      setAccountDetails
-    );
+    if (aaContractAddress && chainId) {
+      fetchAccountDetails(aaContractAddress, chainId)
+        .then(setAccountDetails)
+        .catch((error) => {
+          toast({
+            title: "Error",
+            description: error.message || "Failed to fetch account details.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        });
+    }
   }, [aaContractAddress, chainId]);
 
   if (!accountDetails) {
