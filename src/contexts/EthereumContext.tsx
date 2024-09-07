@@ -10,7 +10,7 @@ interface EthereumContextType {
   aaContractAddress: string | null;
   connect: () => Promise<void>;
   switchNetwork: (chainId: string) => Promise<void>;
-  fetchAAContractAddress: (account: string) => Promise<void>;
+  // fetchAAContractAddress: (account: string) => Promise<void>;
   error: string;
 }
 
@@ -175,7 +175,7 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
         aaContractAddress,
         connect,
         switchNetwork,
-        fetchAAContractAddress,
+        // fetchAAContractAddress,
         error,
       }}
     >

@@ -29,7 +29,7 @@ const UserOpExecution = () => {
     provider,
     signer,
     chainId,
-    fetchAAContractAddress,
+    // fetchAAContractAddress,
   } = useEthereum();
   const [userOp, setUserOp] = useState<UserOperation>({
     sender: account || "0x",
@@ -62,6 +62,7 @@ const UserOpExecution = () => {
     counterABI,
     provider
   );
+
   const createAccountSample = async () => {
     // const ethValue = ethers.parseEther("0.01"); // 10^16 wei
     // const entryPointAddress = "0x71f57F8A220FbcF6AaCdf501912C2ad9b90CA842";
@@ -80,7 +81,7 @@ const UserOpExecution = () => {
     const salt = 0;
 
     const accountFactoryAddress =
-      process.env[`REACT_APP_ACCOUNT_FACTORY_${userOp.chainId}`];
+      process.env[`REACT_APP_ACCOUNT_FACTORY_${chainId}`];
     if (!accountFactoryAddress) {
       toast({
         title: "Error",
@@ -99,39 +100,39 @@ const UserOpExecution = () => {
       signer
     );
 
-    const preInitCode = account_factory.interface.encodeFunctionData(
-      "createAccount",
-      [owner, salt]
-    );
-
-    // const addressHex = ethers.hexlify(accountFactoryAddress);
-    const initCode = accountFactoryAddress + preInitCode.slice(2);
-
-    // account_factory.createAccount()
-    let initAccount: string = await account_factory.getAccountAddress(
-      owner,
-      salt
-    );
-
-    const sample: UserOperation = {
-      sender: initAccount,
-      nonce: 1,
-      chainId: 11155111,
-      initCode: initCode,
-      callData: "0x",
-      callGasLimit: 35000,
-      verificationGasLimit: 250000,
-      preVerificationGas: 17000,
-      maxFeePerGas: 30000000000,
-      maxPriorityFeePerGas: 2500000000,
-      paymasterAndData: "0x",
-    };
-    setUserOp(sample);
-
     // directly create Omni Account by contract interaction
     await createAccountAndGetAddress(account_factory, owner, salt);
 
-    await fetchAAContractAddress(owner);
+    // const preInitCode = account_factory.interface.encodeFunctionData(
+    //   "createAccount",
+    //   [owner, salt]
+    // );
+
+    // const addressHex = ethers.hexlify(accountFactoryAddress);
+    // const initCode = accountFactoryAddress + preInitCode.slice(2);
+
+    // account_factory.createAccount()
+    // let initAccount: string = await account_factory.getAccountAddress(
+    //   owner,
+    //   salt
+    // );
+
+    // const sample: UserOperation = {
+    //   sender: initAccount,
+    //   nonce: 1,
+    //   chainId: 11155111,
+    //   initCode: initCode,
+    //   callData: "0x",
+    //   callGasLimit: 35000,
+    //   verificationGasLimit: 250000,
+    //   preVerificationGas: 17000,
+    //   maxFeePerGas: 30000000000,
+    //   maxPriorityFeePerGas: 2500000000,
+    //   paymasterAndData: "0x",
+    // };
+    // setUserOp(sample);
+
+    // await fetchAAContractAddress(owner);
   };
 
   async function createAccountAndGetAddress(
