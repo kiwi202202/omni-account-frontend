@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -16,17 +16,21 @@ const abstractAccountABI = SimpleAccount;
 
 const DepositWithdraw: React.FC = () => {
   const [amount, setAmount] = useState<string>("");
+  const [accountBalance, setAccountBalance] = useState<string>("");
   const toast = useToast();
 
   const { aaContractAddress, chainId, provider, signer } = useEthereum();
 
-  if (!aaContractAddress) {
-    return (
-      <Text mx={20} variant="title">
-        No Omni Account is linked to the current EOA
-      </Text>
-    );
-  }
+  const fetchBalance = async () => {
+    if (aaContractAddress && provider) {
+      try {
+        const balance = await provider.getBalance(aaContractAddress);
+        setAccountBalance(ethers.formatEther(balance));
+      } catch (error: any) {
+        console.error("Failed to fetch balance:", error);
+      }
+    }
+  };
 
   const handleDeposit = async () => {
     if (!amount) {
@@ -94,6 +98,16 @@ const DepositWithdraw: React.FC = () => {
       return;
     }
 
+    if (!aaContractAddress) {
+      toast({
+        title: "No Omni Account linked to the current EOA",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       const contract = new ethers.Contract(
         aaContractAddress,
@@ -128,6 +142,12 @@ const DepositWithdraw: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (aaContractAddress) {
+      fetchBalance();
+    }
+  }, [aaContractAddress, provider]);
+
   return (
     <Box
       mx="auto"
@@ -140,25 +160,37 @@ const DepositWithdraw: React.FC = () => {
       padding={6}
     >
       <Stack spacing={4}>
-        <HStack>
-          <Text variant="title">Omni Account: </Text>
-          <Text variant="description">{aaContractAddress}</Text>
-        </HStack>
-        <HStack>
-          <Text variant="title">Chain Id: </Text>
-          <Text variant="description">{chainId}</Text>
-        </HStack>
-        <Input
-          placeholder="Please enter amount (ETH)"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <Button width="200px" onClick={handleDeposit}>
-          Deposit
-        </Button>
-        <Button width="200px" onClick={handleWithdraw}>
-          Withdraw
-        </Button>
+        {!aaContractAddress ? (
+          <Text mx={20} variant="title">
+            No Omni Account is linked to the current EOA
+          </Text>
+        ) : (
+          <>
+            <HStack>
+              <Text variant="title">Omni Account: </Text>
+              <Text variant="description">{aaContractAddress}</Text>
+            </HStack>
+            <HStack>
+              <Text variant="title">Chain Id: </Text>
+              <Text variant="description">{chainId}</Text>
+            </HStack>
+            <HStack>
+              <Text variant="title">Balance: </Text>
+              <Text variant="description">{accountBalance}</Text>
+            </HStack>
+            <Input
+              placeholder="Please enter amount (ETH)"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <Button width="200px" onClick={handleDeposit}>
+              Deposit
+            </Button>
+            <Button width="200px" onClick={handleWithdraw}>
+              Withdraw
+            </Button>
+          </>
+        )}
       </Stack>
     </Box>
   );
