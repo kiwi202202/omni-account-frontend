@@ -1,11 +1,99 @@
-import { Flex, Button, Box, Image } from "@chakra-ui/react";
+import { Flex, Button, Box, Image, useToast, Select } from "@chakra-ui/react";
 import { useEthereum } from "../contexts/EthereumContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
+import axios from "axios";
+import { AccountDetails } from "../types/Account";
+import { setAccountDetails } from "../features/account/accountSlice";
+import { useEffect, useState } from "react";
+
+const fetchAccountDetails = async (
+  address: string,
+  chainId: string
+): Promise<AccountDetails> => {
+  const rpcData = {
+    jsonrpc: "2.0",
+    method: "eth_getAccountInfo",
+    params: [address, parseInt(chainId, 10)],
+    // params: ["0xfd63ed0566a782ef57f559c6f5f9afece4866423", 11155111],
+    id: 1,
+  };
+
+  try {
+    const response = await axios.post(
+      process.env.REACT_APP_BACKEND_RPC_URL!,
+      rpcData
+    );
+
+    if (response.data && response.data.result) {
+      const result = response.data.result;
+
+      const accountDetails: AccountDetails = {
+        balance: result.Balance,
+        nonce: result.Nonce,
+        history: [],
+      };
+
+      return accountDetails;
+    } else {
+      throw new Error("Failed to get Omni Account Info");
+    }
+  } catch (error) {
+    console.error("Failed to send getAccountInfo request to backend:", error);
+    throw new Error("Failed to get Omni Account Info");
+  }
+};
 
 const Banner = () => {
-  const { account, connect } = useEthereum();
+  const { account, connect, aaContractAddress, chainId, switchNetwork } =
+    useEthereum();
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
+  const [selectedNetwork, setSelectedNetwork] = useState<string>(chainId || "");
+
+  const handleSwitchNetwork = async (newChainId: string) => {
+    try {
+      await switchNetwork(newChainId);
+      toast({
+        title: "Success",
+        description: `Switched to network ${newChainId}`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || `Failed to switch network.`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const accountDetails = useSelector(
+    (state: RootState) => state.account.accountDetails
+  );
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (aaContractAddress && chainId) {
+      fetchAccountDetails(aaContractAddress, chainId)
+        .then((details) => dispatch(setAccountDetails(details)))
+        .catch((error) => {
+          toast({
+            title: "Error",
+            description: error.message || "Failed to fetch account details.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        });
+    }
+  }, [aaContractAddress, chainId, dispatch]);
 
   const baseStyle = {
     bg: "transparent",
@@ -41,13 +129,6 @@ const Banner = () => {
         m="0 auto"
       >
         <Flex align="center" gap="64px">
-          {/* <Image
-            src="/logo512.png"
-            alt="Logo"
-            width="200px"
-            height="40px"
-            borderRadius="0px"
-          /> */}
           <Button
             onClick={() => navigate("/")}
             sx={{
@@ -86,7 +167,20 @@ const Banner = () => {
           </Button>
         </Flex>
 
-        <Flex align="center">
+        <Flex align="center" gap="16px">
+          <Select
+            value={selectedNetwork}
+            onChange={(e) => {
+              const newChainId = e.target.value;
+              setSelectedNetwork(newChainId);
+              handleSwitchNetwork(newChainId);
+            }}
+            width="200px"
+          >
+            <option value="11155111">Sepolia Testnet (11155111)</option>
+            <option value="421614">Arbitrum Sepolia (421614)</option>
+          </Select>
+
           {account ? (
             <Button variant="solid">
               {account.slice(0, 6) + "..." + account.slice(-4)}

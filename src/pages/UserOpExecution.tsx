@@ -16,10 +16,15 @@ import { UserOperation } from "../types/UserOperation";
 import axios from "axios";
 import AccountABI from "../abis/test.json";
 import SimpleAccountFactoryABI from "../abis/SimpleAccountFactory.json";
+import CounterJSON from "../abis/Counter.json";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
+const counterABI = CounterJSON.abi;
 const { TypedDataEncoder } = ethers;
 
 const UserOpExecution = () => {
-  const { account, aaContractAddress, provider, signer } = useEthereum();
+  const { account, aaContractAddress, provider, signer, chainId } =
+    useEthereum();
   const [userOp, setUserOp] = useState<UserOperation>({
     sender: account || "0x",
     nonce: 1,
@@ -34,13 +39,23 @@ const UserOpExecution = () => {
     paymasterAndData: "0x",
   });
   const toast = useToast();
+  const [toAddress, setToAddress] = useState("");
+  const [amount, setAmount] = useState("0.01");
+  const accountDetails = useSelector(
+    (state: RootState) => state.account.accountDetails
+  );
 
   const account_contract = new ethers.Contract(
-    "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    aaContractAddress || "0x93d53d2d8f0d623c5cbe46daa818177a450bd9f7",
     AccountABI,
     provider
   );
 
+  const counter_contract = new ethers.Contract(
+    process.env[`REACT_APP_COUNTER_11155111`]!,
+    counterABI,
+    provider
+  );
   const createAccountSample = async () => {
     // const ethValue = ethers.parseEther("0.01"); // 10^16 wei
     // const entryPointAddress = "0x71f57F8A220FbcF6AaCdf501912C2ad9b90CA842";
@@ -138,31 +153,61 @@ const UserOpExecution = () => {
   }
 
   const transferSample = () => {
-    const ethValue = ethers.parseEther("0.01"); // 10^16 wei
-    const entryPointAddress = "0x71f57F8A220FbcF6AaCdf501912C2ad9b90CA842";
+    const ethValue = ethers.parseEther(amount);
+    // const entryPointAddress = process.env.REACT_APP_ENTRY_POINT_11155111!;
     const incrementCallData = "0x";
 
     const callData = account_contract.interface.encodeFunctionData("execute", [
-      entryPointAddress,
+      toAddress,
       ethValue,
       incrementCallData,
     ]);
 
+    const new_nonce = (accountDetails?.nonce ?? 0) + 1;
+
     const sample: UserOperation = {
-      sender: aaContractAddress || "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      nonce: 1,
-      chainId: 11155111,
+      sender: aaContractAddress || "0x",
+      nonce: new_nonce,
+      chainId: userOp.chainId,
       initCode: "0x",
       callData: callData,
-      callGasLimit: 35000,
-      verificationGasLimit: 27000,
-      preVerificationGas: 17000,
+      callGasLimit: 200000,
+      verificationGasLimit: 270000,
+      preVerificationGas: 170000,
       maxFeePerGas: 30000000000,
-      maxPriorityFeePerGas: 2500000000,
+      maxPriorityFeePerGas: 2000000000,
       paymasterAndData: "0x",
     };
     setUserOp(sample);
-    // return sample;
+  };
+
+  const counterSample = () => {
+    const ethValue = ethers.parseEther("0");
+    const counterAddress = process.env[`REACT_APP_COUNTER_${userOp.chainId}`];
+    const incrementCallData =
+      counter_contract.interface.encodeFunctionData("increment");
+    const callData = account_contract.interface.encodeFunctionData("execute", [
+      counterAddress,
+      ethValue,
+      incrementCallData,
+    ]);
+
+    const new_nonce = (accountDetails?.nonce ?? 0) + 1;
+
+    const sample: UserOperation = {
+      sender: aaContractAddress || "0x",
+      nonce: new_nonce,
+      chainId: userOp.chainId,
+      initCode: "0x",
+      callData: callData,
+      callGasLimit: 200000,
+      verificationGasLimit: 270000,
+      preVerificationGas: 170000,
+      maxFeePerGas: 30000000000,
+      maxPriorityFeePerGas: 2000000000,
+      paymasterAndData: "0x",
+    };
+    setUserOp(sample);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -417,13 +462,33 @@ const UserOpExecution = () => {
         <Box ml="40" width="300px" mt="20">
           <ButtonGroup flexDir="column" spacing="0">
             <Button mb="4" onClick={createAccountSample}>
-              Create AA Sample
+              Create Omni Account
             </Button>
-            <Button mb="4" onClick={transferSample}>
-              Transfer 0.01 ETH Sample
+            <Box>
+              <Input
+                placeholder="Recipient address"
+                value={toAddress}
+                onChange={(e) => setToAddress(e.target.value)}
+                mb="4"
+              />
+              <Input
+                placeholder="Amount in ETH"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                mb="4"
+              />
+              <Button mb="4" onClick={transferSample} width="100%">
+                Transfer {amount} ETH
+              </Button>
+            </Box>
+
+            {/* <Box> */}
+            <Button mb="4" onClick={counterSample}>
+              Trigger Counter on chain: {chainId}
             </Button>
+            {/* </Box> */}
+
             <Button onClick={signAndSend}>Sign and Send UserOp</Button>
-            <Button onClick={testApi}>Test Backend Api</Button>
           </ButtonGroup>
         </Box>
       </Flex>

@@ -15,67 +15,19 @@ import {
 import { AccountDetails } from "../types/Account";
 import { useEthereum } from "../contexts/EthereumContext";
 import axios from "axios";
-
-const fetchAccountDetails = async (
-  address: string,
-  chainId: string
-): Promise<AccountDetails> => {
-  const rpcData = {
-    jsonrpc: "2.0",
-    method: "eth_getAccountInfo",
-    params: [address, parseInt(chainId, 10)],
-    // params: ["0xfd63ed0566a782ef57f559c6f5f9afece4866423", 11155111],
-    id: 1,
-  };
-
-  try {
-    const response = await axios.post(
-      process.env.REACT_APP_BACKEND_RPC_URL!,
-      rpcData
-    );
-
-    if (response.data && response.data.result) {
-      const result = response.data.result;
-
-      const accountDetails: AccountDetails = {
-        balance: result.Balance,
-        nonce: result.Nonce,
-        history: [],
-      };
-
-      return accountDetails;
-    } else {
-      throw new Error("Failed to get Omni Account Info");
-    }
-  } catch (error) {
-    console.error("Failed to send getAccountInfo request to backend:", error);
-    throw new Error("Failed to get Omni Account Info");
-  }
-};
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
+import { setAccountDetails } from "../features/account/accountSlice";
 
 const Account: React.FC = () => {
-  const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
-    null
-  );
+  // const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(
+  //   null
+  // );
   const { chainId, aaContractAddress, error } = useEthereum();
-
   const toast = useToast();
-
-  useEffect(() => {
-    if (aaContractAddress && chainId) {
-      fetchAccountDetails(aaContractAddress, chainId)
-        .then(setAccountDetails)
-        .catch((error) => {
-          toast({
-            title: "Error",
-            description: error.message || "Failed to fetch account details.",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-        });
-    }
-  }, [aaContractAddress, chainId]);
+  const accountDetails = useSelector(
+    (state: RootState) => state.account.accountDetails
+  );
 
   if (!accountDetails) {
     return <Text>Loading...</Text>;

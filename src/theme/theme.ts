@@ -131,6 +131,53 @@ const theme = extendTheme({
         color: "#666666",
       },
     },
+    Select: {
+      defaultProps: {
+        focusBorderColor: "black",
+      },
+      baseStyle: {
+        field: {
+          fontFamily: '"JetBrains Mono", monospace',
+          fontWeight: 300,
+          fontSize: "16px",
+          lineHeight: "20px",
+          letterSpacing: "-0.5px",
+          textAlign: "left",
+          color: "rgb(182, 182, 182)",
+          _focus: {
+            borderColor: "black",
+          },
+          _placeholder: {
+            color: "rgb(182, 182, 182)",
+          },
+        },
+        icon: {
+          color: "#666666",
+        },
+      },
+      variants: {
+        outline: {
+          field: {
+            borderColor: "#222222",
+            _hover: {
+              borderColor: "#666666",
+            },
+            _focus: {
+              borderColor: "black",
+            },
+          },
+        },
+      },
+      sizes: {
+        md: {
+          field: {
+            height: "40px",
+            fontSize: "16px",
+          },
+        },
+      },
+    },
+    
   },
 });
 

@@ -164,7 +164,7 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
       setAAContractAddress(response.data.result[0]);
     } catch (error) {
       console.error("API Request Failed:", error);
-      setError("Failed to fetch AA Contract Address.");
+      setError("Failed to fetch Omni Account Address.");
     }
   };
 
