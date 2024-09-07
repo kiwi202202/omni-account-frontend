@@ -10,7 +10,7 @@ interface EthereumContextType {
   aaContractAddress: string | null;
   connect: () => Promise<void>;
   switchNetwork: (chainId: string) => Promise<void>;
-  // fetchAAContractAddress: () => Promise<void>;
+  fetchAAContractAddress: (account: string) => Promise<void>;
   error: string;
 }
 
@@ -91,7 +91,7 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
       setSigner(signer);
       setChainId(network.chainId.toString());
       setError("");
-      await fetchAAContractAddress(account, provider);
+      await fetchAAContractAddress(account);
     } catch (error) {
       console.error("Failed to connect MetaMask", error);
       setError("Failed to connect MetaMask.");
@@ -141,11 +141,8 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
     }
   };
 
-  const fetchAAContractAddress = async (
-    account: string,
-    provider: ethers.BrowserProvider
-  ) => {
-    if (!account || !provider) {
+  const fetchAAContractAddress = async (account: string) => {
+    if (!account) {
       setError("Cannot fetch Omni Account: EOA or provider is not available.");
       return;
     }
@@ -178,7 +175,7 @@ export const EthereumProvider = ({ children }: EthereumProviderProps) => {
         aaContractAddress,
         connect,
         switchNetwork,
-        // fetchAAContractAddress,
+        fetchAAContractAddress,
         error,
       }}
     >

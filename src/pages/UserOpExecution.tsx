@@ -23,8 +23,14 @@ const counterABI = CounterJSON.abi;
 const { TypedDataEncoder } = ethers;
 
 const UserOpExecution = () => {
-  const { account, aaContractAddress, provider, signer, chainId } =
-    useEthereum();
+  const {
+    account,
+    aaContractAddress,
+    provider,
+    signer,
+    chainId,
+    fetchAAContractAddress,
+  } = useEthereum();
   const [userOp, setUserOp] = useState<UserOperation>({
     sender: account || "0x",
     nonce: 1,
@@ -124,6 +130,8 @@ const UserOpExecution = () => {
 
     // directly create Omni Account by contract interaction
     await createAccountAndGetAddress(account_factory, owner, salt);
+
+    await fetchAAContractAddress(owner);
   };
 
   async function createAccountAndGetAddress(
@@ -325,24 +333,6 @@ const UserOpExecution = () => {
         duration: 5000,
         isClosable: true,
       });
-    }
-  };
-
-  const testApi = async () => {
-    try {
-      const response = await axios.post(
-        process.env.REACT_APP_BACKEND_RPC_URL!,
-        {
-          jsonrpc: "2.0",
-          method: "eth_getBatchProof",
-          params: [],
-          id: 1,
-        }
-      );
-
-      console.log("API Response:", response.data);
-    } catch (error) {
-      console.error("API Request Failed:", error);
     }
   };
 
