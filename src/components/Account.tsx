@@ -78,7 +78,9 @@ const Account: React.FC = () => {
         </HStack>
         <HStack>
           <Text variant="title">Gas Balance: </Text>
-          <Text variant="description">{accountDetails.balance} ETH</Text>
+          <Text variant="description">
+            {ethers.formatEther(accountDetails.balance)} ETH
+          </Text>
         </HStack>
         <HStack>
           <Text variant="title">Nonce:</Text>
