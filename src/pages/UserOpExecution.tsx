@@ -85,7 +85,7 @@ const UserOpExecution = () => {
     if (!accountFactoryAddress) {
       toast({
         title: "Error",
-        description: `Account factory is not available for chainId ${userOp.chainId}.`,
+        description: `Account factory is not available for chainId ${chainId}.`,
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -162,6 +162,26 @@ const UserOpExecution = () => {
   }
 
   const transferSample = () => {
+    if (!chainId) {
+      toast({
+        title: "Error",
+        description: "Please connect your wallet.",
+        status: "info",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (!toAddress.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide a valid address.",
+        status: "info",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
     const ethValue = ethers.parseEther(amount);
     // const entryPointAddress = process.env.REACT_APP_ENTRY_POINT_11155111!;
     const incrementCallData = "0x";
@@ -174,10 +194,13 @@ const UserOpExecution = () => {
 
     const new_nonce = (accountDetails?.nonce ?? 0) + 1;
 
+    const chainIdNumber: number =
+      chainId !== null ? parseInt(chainId, 10) : 11155111;
+
     const sample: UserOperation = {
       sender: aaContractAddress || "0x",
       nonce: new_nonce,
-      chainId: userOp.chainId,
+      chainId: chainIdNumber,
       initCode: "0x",
       callData: callData,
       callGasLimit: 200000,
@@ -191,6 +214,16 @@ const UserOpExecution = () => {
   };
 
   const counterSample = () => {
+    if (!chainId) {
+      toast({
+        title: "Error",
+        description: "Please connect your wallet.",
+        status: "info",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
     const ethValue = ethers.parseEther("0");
     const counterAddress = process.env[`REACT_APP_COUNTER_${chainId}`];
     const incrementCallData =
@@ -202,11 +235,13 @@ const UserOpExecution = () => {
     ]);
 
     const new_nonce = (accountDetails?.nonce ?? 0) + 1;
+    const chainIdNumber: number =
+      chainId !== null ? parseInt(chainId, 10) : 11155111;
 
     const sample: UserOperation = {
       sender: aaContractAddress || "0x",
       nonce: new_nonce,
-      chainId: userOp.chainId,
+      chainId: chainIdNumber,
       initCode: "0x",
       callData: callData,
       callGasLimit: 200000,
@@ -240,7 +275,7 @@ const UserOpExecution = () => {
       const domain = {
         name: "OMNI-ACCOUNT",
         version: "1.0",
-        chainId: 11155111,
+        chainId: chainId,
         verifyingContract: process.env.REACT_APP_SEPOLIA_ENTRY_POINT!,
       };
 
