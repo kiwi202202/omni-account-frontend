@@ -259,6 +259,11 @@ const UserOpExecution = () => {
     setUserOp({ ...userOp, [name]: value });
   };
 
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserOp({ ...userOp, [name]: Number(value) });
+  };
+
   const signAndSend = async () => {
     if (!signer) {
       toast({
@@ -275,8 +280,8 @@ const UserOpExecution = () => {
       const domain = {
         name: "OMNI-ACCOUNT",
         version: "1.0",
-        chainId: chainId,
-        verifyingContract: process.env.REACT_APP_SEPOLIA_ENTRY_POINT!,
+        // chainId: chainId,
+        // verifyingContract: process.env.REACT_APP_SEPOLIA_ENTRY_POINT!,
       };
 
       const types = {
@@ -403,7 +408,7 @@ const UserOpExecution = () => {
               name="nonce"
               type="number"
               value={userOp.nonce}
-              onChange={handleChange}
+              onChange={handleNumberChange}
             />
           </FormControl>
           <FormControl mb="1">
@@ -412,7 +417,7 @@ const UserOpExecution = () => {
               name="chainId"
               type="number"
               value={userOp.chainId}
-              onChange={handleChange}
+              onChange={handleNumberChange}
             />
           </FormControl>
           <FormControl mb="1">
@@ -437,7 +442,7 @@ const UserOpExecution = () => {
               name="callGasLimit"
               type="number"
               value={userOp.callGasLimit}
-              onChange={handleChange}
+              onChange={handleNumberChange}
             />
           </FormControl>
           <FormControl mb="1">
@@ -446,7 +451,7 @@ const UserOpExecution = () => {
               name="verificationGasLimit"
               type="number"
               value={userOp.verificationGasLimit}
-              onChange={handleChange}
+              onChange={handleNumberChange}
             />
           </FormControl>
           <FormControl mb="1">
@@ -455,7 +460,7 @@ const UserOpExecution = () => {
               name="preVerificationGas"
               type="number"
               value={userOp.preVerificationGas}
-              onChange={handleChange}
+              onChange={handleNumberChange}
             />
           </FormControl>
           <FormControl mb="1">
@@ -464,7 +469,7 @@ const UserOpExecution = () => {
               name="maxFeePerGas"
               type="number"
               value={userOp.maxFeePerGas}
-              onChange={handleChange}
+              onChange={handleNumberChange}
             />
           </FormControl>
           <FormControl mb="1">
@@ -473,7 +478,7 @@ const UserOpExecution = () => {
               name="maxPriorityFeePerGas"
               type="number"
               value={userOp.maxPriorityFeePerGas}
-              onChange={handleChange}
+              onChange={handleNumberChange}
             />
           </FormControl>
           <FormControl mb="1">
