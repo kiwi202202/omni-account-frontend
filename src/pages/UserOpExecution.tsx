@@ -192,7 +192,7 @@ const UserOpExecution = () => {
 
   const counterSample = () => {
     const ethValue = ethers.parseEther("0");
-    const counterAddress = process.env[`REACT_APP_COUNTER_${userOp.chainId}`];
+    const counterAddress = process.env[`REACT_APP_COUNTER_${chainId}`];
     const incrementCallData =
       counter_contract.interface.encodeFunctionData("increment");
     const callData = account_contract.interface.encodeFunctionData("execute", [
