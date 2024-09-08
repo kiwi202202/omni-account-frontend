@@ -78,7 +78,7 @@ const UserOpExecution = () => {
       return;
     }
     const owner = account;
-    const salt = 0;
+    const salt = 998;
 
     const accountFactoryAddress =
       process.env[`REACT_APP_ACCOUNT_FACTORY_${chainId}`];
@@ -100,22 +100,20 @@ const UserOpExecution = () => {
       signer
     );
 
-    // directly create Omni Account by contract interaction
-    await createAccountAndGetAddress(account_factory, owner, salt);
+    const preInitCode = account_factory.interface.encodeFunctionData(
+      "createAccount",
+      [owner, salt]
+    );
 
-    // const preInitCode = account_factory.interface.encodeFunctionData(
-    //   "createAccount",
-    //   [owner, salt]
-    // );
-
-    // const addressHex = ethers.hexlify(accountFactoryAddress);
-    // const initCode = accountFactoryAddress + preInitCode.slice(2);
+    const addressHex = ethers.hexlify(accountFactoryAddress);
+    const initCode = accountFactoryAddress + preInitCode.slice(2);
 
     // account_factory.createAccount()
-    // let initAccount: string = await account_factory.getAccountAddress(
-    //   owner,
-    //   salt
-    // );
+    let initAccount: string = await account_factory.getAccountAddress(
+      owner,
+      salt
+    );
+    console.log("Calculated Omni Account Address: ", initAccount);
 
     // const sample: UserOperation = {
     //   sender: initAccount,
@@ -132,7 +130,8 @@ const UserOpExecution = () => {
     // };
     // setUserOp(sample);
 
-    // await fetchAAContractAddress(owner);
+    // directly create Omni Account by contract interaction
+    await createAccountAndGetAddress(account_factory, owner, salt);
   };
 
   async function createAccountAndGetAddress(
@@ -140,7 +139,8 @@ const UserOpExecution = () => {
     owner: string,
     salt: BigNumberish
   ) {
-    // Assume account_factory is an instance of a contract with the createAccount method
+    console.log("owner: ", owner);
+    console.log("salt: ", salt);
     try {
       let tx = await account_factory.createAccount(owner, salt);
 

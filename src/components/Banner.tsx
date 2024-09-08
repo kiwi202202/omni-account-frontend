@@ -80,6 +80,9 @@ const Banner = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (chainId) {
+      setSelectedNetwork(chainId);
+    }
     if (aaContractAddress && chainId) {
       fetchAccountDetails(aaContractAddress, chainId)
         .then((details) => dispatch(setAccountDetails(details)))
